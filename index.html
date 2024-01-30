@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #container1 {
+            position: fixed;
+            z-index: 2;
+        }
+
+        #container2 {
+            position: fixed;
+            z-index: 2;
+        }
+
+        #canvas {
+            position: absolute;
+            z-index: 1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        h2 {
+            color: blueviolet;
+        }
+
+        div {
+            user-select: none;
+        }
+
+        #time {
+            color: forestgreen;
+            font-size: 36px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container1">Game by Valiq</div>
+    <div id="container2">
+        <div>
+            <h2>Scour: <span id="score">0</span></h2>
+        </div>
+
+        <div>
+            <h3 style="margin-top: 0;">Blink: <span id="time">READY</span></h3>
+        </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script src="index.js"></script>
+</body>
+
+</html>
