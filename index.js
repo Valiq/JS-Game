@@ -2,6 +2,14 @@
 var canvasWidth = window.innerWidth;
 var canvasHeight = window.innerHeight;
 
+// Обработчики событий
+document.addEventListener('keydown', handleKeyDown);
+document.addEventListener('keyup', handleKeyUp);
+document.addEventListener('mousedown', handleMouseDown);
+document.addEventListener('mouseup', handleMouseUp);
+document.getElementById('startButton').addEventListener('click', startGame);
+document.getElementById('restartButton').addEventListener('click', restartGame);
+
 // Определяем состояние клавиш движения
 var keys = {
     ArrowUp: false,
@@ -27,45 +35,65 @@ var playerSpeed = 2;
 var playerBulletSpeed = 7;
 var enemyBulletSpeed = 4;
 var enemySpeed = 2;
-var scoure = 0;
 var modCounter = 10;
 var shieldFallConroller = false;
 
-var gameOver = false;
-var hardMod = false;
-
 // Определяем игровые объекты
-var newPlayer = {
-    x: canvasWidth / 2,
-    y: canvasHeight / 2,
-    width: 25,
-    height: 25,
-    color: 'blue',
-    weapon: 'pistol',
-    shieldViseble: false,
-    shieldEnabled: false,
-    teleportEnabled: true,
-    buff: false,
-    blinkAnimation: false,
-    circleR: 12
-};
+var scoure;
+var superBullet;
+var gameOver;
+var hardMod;
+var player;
+var bullets;
+var enemies;
+var deaths;
+var teleportInterval;
 
-var player = newPlayer;
+//  Новая игра
+function newGame(){
+    player = {
+        x: canvasWidth / 2,
+        y: canvasHeight / 2,
+        width: 25,
+        height: 25,
+        color: 'blue',
+        weapon: 'pistol',
+        shieldViseble: false,
+        shieldEnabled: false,
+        teleportEnabled: true,
+        buff: false,
+        blinkAnimation: false,
+        circleR: 12
+    };
 
-var superBullet = {
-    x: Math.random() * (canvasWidth - 20) + 10,
-    y: Math.random() * (canvasHeight - 20) + 10,
-    width: 6,
-    height: 6,
-    color: 'purple',
-    spawn: true,
-    trackerX: 0,
-    trackerY: 0
+    superBullet = {
+        x: Math.random() * (canvasWidth - 20) + 10,
+        y: Math.random() * (canvasHeight - 20) + 10,
+        width: 6,
+        height: 6,
+        color: 'purple',
+        spawn: true,
+        trackerX: 0,
+        trackerY: 0
+    };
+
+    scoure = 0;
+    updateScore();
+
+    if(teleportInterval != null){
+        var scoreElement = document.getElementById('time');
+        clearInterval(teleportInterval); // Останавливаем интервал
+        player.teleportEnabled = true; // Выключаем телепорт       
+        scoreElement.style.color = 'forestgreen';
+        scoreElement.innerText = 'READY';
+    }
+
+    gameOver = false;
+    hardMod = false;
+    bullets = [];
+    enemies = [];
+    deaths = [];    
 }
-
-var bullets = [];
-var enemies = [];
-var deaths = [];
 
 // Функция для создания врагов
 function createEnemy() {
@@ -83,12 +111,39 @@ function createEnemy() {
         enemies.push(enemy);
 }
 
+function showRulesWindow() {
+    document.getElementById('rulesWindow').style.display = 'block';
+}
+
+// Функция для скрытия окна с правилами игры и запуска игры
+function startGame() {
+    document.getElementById('rulesWindow').style.display = 'none';
+
+    newGame();  
+    update();
+}
+
+// Функция для отображения окна с результатами игры
+function showScoreWindow(score) {
+    document.getElementById('finalScore').textContent = scoure;
+    document.getElementById('scoreWindow').style.display = 'block';
+}
+
+// Функция для перезапуска игры
+function restartGame() {
+    document.getElementById('scoreWindow').style.display = 'none';
+    //location.reload();
+
+    newGame();  
+    update();
+}
+
 // Функция для обновления игры
 function update() {
 
     if (gameOver) {
-        alert("Game Over");
-        restartGame();
+        //alert("Game Over");
+        showScoreWindow(score);
         return;
     }
 
@@ -125,8 +180,8 @@ function update() {
 
         if (bullet.type === "player") {
             if (!bullet.superBullet) {
-                context.fillStyle = player.color;
-                context.fillRect(bullet.x - 2, bullet.y - 2, 4, 4);
+                context.fillStyle = "blue";
+                context.fillRect(bullet.x - 2, bullet.y - 2, 5, 5);
             }
 
             if (bullet.superBullet) {
@@ -304,22 +359,18 @@ function update() {
         superBullet.y >= player.y - player.height &&
         superBullet.y <= player.y + player.height) {
         player.buff = true;
+        player.color = 'purple';
         playerShootInterval = 350;
         superBullet.spawn = false;
 
         setTimeout(function () {
             player.buff = false;
+            player.color = 'blue';
             playerShootInterval = 700;
         }, 15000);
     }
 
-    if (superBullet.spawn) {
-        context.beginPath();
-        context.arc(superBullet.x, superBullet.y, 10, 0, 2 * Math.PI);
-        context.fillStyle = superBullet.color;
-        context.fill();
-        context.closePath();
-    }
+    supperBulletSpawn();
 
     // Обновляем координаты игрока на основе нажатых клавиш
     updatePlayerPosition();
@@ -334,9 +385,19 @@ function update() {
     requestAnimationFrame(update);
 }
 
-function restartGame() {
-    location.reload();
+function supperBulletSpawn(){
+    if (superBullet.spawn) {
+        context.beginPath();
+        context.arc(superBullet.x, superBullet.y, 10, 0, 2 * Math.PI);
+        context.fillStyle = superBullet.color;
+        context.fill();
+        context.closePath();
+    }
 }
+
+//function restartGame() {
+//    location.reload();
+//}
 
 function updateScore() {
     var scoreElement = document.getElementById('score');
@@ -440,7 +501,7 @@ function handleMouseDown(event) {
             }, 500);
 
             var time = 10;
-            var teleportInterval = setInterval(function () {
+            teleportInterval = setInterval(function () {
                 time -= 0.01; // Уменьшаем время перезарядки телепорта   
                 scoreElement.innerText = time.toFixed(2);
             }, 10);
@@ -477,7 +538,8 @@ function shootBullet(clientX, clientY) {
         speedX: Math.cos(angle) * playerBulletSpeed,
         speedY: Math.sin(angle) * playerBulletSpeed,
         type: "player",
-        superBullet: false
+        superBullet: false,
+        color: player.color
     };
 
     if (player.buff) {
@@ -501,7 +563,8 @@ function shootBulletFromEnemy(enemy) {
         speedX: Math.cos(angle) * enemyBulletSpeed,
         speedY: Math.sin(angle) * enemyBulletSpeed,
         type: "enemy",
-        superBullet: false
+        superBullet: false,
+        color: "black"
     };
 
     bullets.push(bullet);
@@ -511,14 +574,8 @@ document.addEventListener('contextmenu', function (event) {
     event.preventDefault(); // Предотвращаем действие по умолчанию
 });
 
-// Обработчики событий
-document.addEventListener('keydown', handleKeyDown);
-document.addEventListener('keyup', handleKeyUp);
-document.addEventListener('mousedown', handleMouseDown);
-document.addEventListener('mouseup', handleMouseUp);
-
 // Запускаем игру
-update();
+//update();
 
 setInterval(function () {
     superBullet.spawn = true;

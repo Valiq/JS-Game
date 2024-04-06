@@ -29,13 +29,62 @@
             color: blueviolet;
         }
 
+        h3{
+            color: blueviolet;          
+        }
+
+        #gameOver{
+            color: red;
+        }
+
         div {
             user-select: none;
         }
 
         #time {
             color: forestgreen;
-            font-size: 36px;
+            font-size: 26px;
+        }
+
+        /* Общие стили */
+        .window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid #000;
+            background-color: #fff;
+            text-align: center;
+            display: none;
+            z-index: 2;
+        }
+
+        /* Стили для окна с правилами */
+        #rulesWindow {  
+            display: block;
+            width: 400px;
+            padding: 20px;
+        }
+        
+        #scoreWindow{
+            width: 200px;
+            padding: 20px;
+        }
+
+        .button{
+            transition: all 0.3s;
+            background-color: #fff;
+            color: #000;
+        }
+
+        .button:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        a{
+            text-decoration: underline;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -51,6 +100,27 @@
             <h3 style="margin-top: 0;">Blink: <span id="time">READY</span></h3>
         </div>
     </div>
+
+    <div id="rulesWindow" class="window">   
+        <h2>Правила игры</h2>       
+        <p>У игрока <span style="color: red;">ОДНА ЖИЗНЬ</span></p>
+        <p>Движение организовано с помощью клавиш: <span style="color: blueviolet;">←, →, ↑, ↓</span>
+            <br>(Движение по диагонали в два раза быстрее)</p>
+        <p>Стрельба организована на <span style="color: blueviolet; font-weight: bold;">ЛКМ</span></p>
+        <p><span style="color: purple">Фиолетовый кружочек -</span> Бафф на суперпули</p>
+        <p>Телепорт организована на <span style="color: blueviolet; font-weight: bold;">ПКМ</span><br>(После телепорт вокруг игрока создаётся блок)</p>
+        <p>Каждые 10 очков игрок получает <span style="color: darkorange;  font-weight: bold;">Щит</span>
+            <br>(После попадания врага щит спадает и даёт неуязвимость на несколько секунд)</p>
+        <p>Чем больше очков, тем больше сложность врагов</p>
+        <h2 class="button"><a id="startButton">Начать игру</a></h2>
+    </div>
+
+    <div id="scoreWindow" class="window">
+        <h2 id="gameOver">Игра окончена</h2>
+        <h2>Ваш счёт: <span id="finalScore">0</span></h2>   
+        <h2 class="button"><a id="restartButton">Начать сначала</a></h2>
+    </div>
+
     <canvas id="canvas"></canvas>
     <script src="index.js"></script>
 </body>
